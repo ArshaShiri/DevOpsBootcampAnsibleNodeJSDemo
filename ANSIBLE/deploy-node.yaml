@@ -26,10 +26,13 @@
     - name: Start the application
       ansible.builtin.command: 
         chdir: /root/package/app
-
         # This command blocks the terminal! We need to run it in the background by adding asynch and poll
         cmd: node server
       async: 1000
       poll: 0
-
-
+    - name: Ensure app is running
+      # This is actually executed in the shell in contrast to command module but command module is more secure.
+      ansible.builtin.shell: ps aux | grep node
+      # Result of the above command is assigned to app_status var which can be accessed later
+      register: app_status
+    - ansible.builtin.debug: msg={{app_status.stdout_lines}}
