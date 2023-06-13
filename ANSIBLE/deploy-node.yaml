@@ -14,10 +14,12 @@
 
 - name: Create new linux user for node app
   hosts: 167.71.39.21
+  vars_files:
+    - project-vars
   tasks:
     - name: Create linux user
       ansible.builtin.user:
-        name: arsha
+        name: "{{linux_name}}"
         comment: Node User
         group: admin
 
@@ -27,19 +29,21 @@
   hosts: 167.71.39.21
   # Run the commands as arsha user
   become: True
-  become_user: arsha
+  become_user: "{{linux_name}}"
+  vars_files:
+    - project-vars
   tasks:
     - name: Unpack the nodejs file
       unarchive:
-        src: ../nodejs-app-1.0.0.tgz
-        dest: /home/arsha
+        src: "{{location}}/nodejs-app-{{version}}.tgz"
+        dest: "{{user_home_dir}}"
     # npm install
     - name: Install dependencies
       community.general.npm:
-        path: /home/arsha/package
+        path: "{{user_home_dir}}/package"
     - name: Start the application
       ansible.builtin.command: 
-        chdir: /home/arsha/package/app
+        chdir: "{{user_home_dir}}/package/app"
         # This command blocks the terminal! We need to run it in the background by adding asynch and poll
         cmd: node server
       async: 1000
