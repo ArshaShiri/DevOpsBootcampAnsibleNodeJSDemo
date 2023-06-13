@@ -12,20 +12,34 @@
           - nodejs
           - npm
 
+- name: Create new linux user for node app
+  hosts: 167.71.39.21
+  tasks:
+    - name: Create linux user
+      ansible.builtin.user:
+        name: arsha
+        comment: Node User
+        group: admin
+
+  # The shell and command modules are run every time via ansible and the state is not checked! 
+  # The state should manually be checked to avoid multiple run of the same command in different runs.
 - name: Deploy nodejs app
   hosts: 167.71.39.21
+  # Run the commands as arsha user
+  become: True
+  become_user: arsha
   tasks:
     - name: Unpack the nodejs file
       unarchive:
         src: ../nodejs-app-1.0.0.tgz
-        dest: /root/
+        dest: /home/arsha
     # npm install
     - name: Install dependencies
       community.general.npm:
-        path: /root/package
+        path: /home/arsha/package
     - name: Start the application
       ansible.builtin.command: 
-        chdir: /root/package/app
+        chdir: /home/arsha/package/app
         # This command blocks the terminal! We need to run it in the background by adding asynch and poll
         cmd: node server
       async: 1000
