@@ -19,4 +19,17 @@
       unarchive:
         src: ../nodejs-app-1.0.0.tgz
         dest: /root/
+    # npm install
+    - name: Install dependencies
+      community.general.npm:
+        path: /root/package
+    - name: Start the application
+      ansible.builtin.command: 
+        chdir: /root/package/app
+
+        # This command blocks the terminal! We need to run it in the background by adding asynch and poll
+        cmd: node server
+      async: 1000
+      poll: 0
+
 
