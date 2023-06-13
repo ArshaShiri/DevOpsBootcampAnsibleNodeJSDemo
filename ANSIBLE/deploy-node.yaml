@@ -1,0 +1,28 @@
+---
+- name: Install node and npm
+  hosts: 167.71.39.21
+  tasks:
+    # apt update
+    - name: Update apt repo and cache
+      ansible.builtin.apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+    - name: Install nodejs and npm
+      ansible.builtin.apt:
+        force_apt_get: yes
+        pkg:
+          - nodejs
+          - npm
+
+- name: Deploy nodejs app
+  hosts: 167.71.39.21
+  tasks:
+    - name: Copy nodejs folder to the server
+      copy:
+        src: ../nodejs-app-1.0.0.tgz
+        dest: /root/app-1.0.0.tgz
+    - name: Unpack the nodejs file
+      unarchive:
+        src: /root/app-1.0.0.tgz
+        dest: /root/
+        # To specify that the steps before should be taken on the remote machine
+        remote_src: yes
+
